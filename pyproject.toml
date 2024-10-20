@@ -3,16 +3,20 @@ requires = ["setuptools >= 61.0", "setuptools_scm>=8"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "your-package-name"
+name = "wnyc-radio-archives-transcriber"
 dynamic = ["version"]
 requires-python = ">=3.9"
 dependencies = [
-    'exceptiongroup; python_version<"3.11"',
+    'bs4',
+    'click',
+    'openai-whisper',
+    'rich',
+    'requests',
 ]
 authors = [
   { name="Ben Welsh", email="b@palewi.re" },
 ]
-description = "Your package description"
+description = "Transcribing audio recordings of WNYC radio broadcasts preserved by the New York City Municipal Archive"
 license = {text = "MIT"}
 readme = "README.md"
 classifiers = [
@@ -33,17 +37,9 @@ test = [
     "pytest-vcr",
     "pytest-xdist",
 ]
-docs = [
-    "sphinx",
-    "sphinx-autobuild",
-    "sphinxcontrib-mermaid",
-    "myst-parser",
-]
 mypy = [
     "mypy",
-]
-build = [
-  "twine",
+    "types-requests",
 ]
 
 [project.urls]
@@ -52,7 +48,7 @@ Maintainer = "https://github.com/palewire/"
 Source = "https://github.com/palewire/your-respository/"
 Issues = "https://github.com/palewire/your-respository/issues/"
 
-# [tool.setuptools]
-# packages = ["your_package_module"]
+[tool.setuptools]
+packages = ["pipeline"]
 
 [tool.setuptools_scm]

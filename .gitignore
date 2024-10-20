@@ -105,3 +105,6 @@ venv.bak/
 
 # ruff
 .ruff_cache/
+
+# uv
+./build

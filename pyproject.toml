@@ -41,6 +41,7 @@ test = [
 mypy = [
     "mypy",
     "types-requests",
+    "types-retry",
 ]
 
 [project.urls]

@@ -10,6 +10,7 @@ openai-whisper = "*"
 rich = "*"
 requests = "*"
 retry = "*"
+pre-commit = "*"
 
 [dev-packages]
 

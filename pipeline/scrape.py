@@ -57,7 +57,7 @@ def _scrape_page_list(page: int) -> list[dict]:
     # Get the HTML
     with open(html_input_path) as file:
         html = file.read()
-    
+
     # Parse the HTML
     soup = BeautifulSoup(html, "html.parser")
 
@@ -103,7 +103,9 @@ def _scrape_page_list(page: int) -> list[dict]:
 def _get_page_detail(page: dict) -> Path:
     """Scrape the provided page."""
     # Set the HTML output path
-    html_output_path = settings.INPUT_DIR / "html" / "details" / f"{page['page_id']}.html"
+    html_output_path = (
+        settings.INPUT_DIR / "html" / "details" / f"{page['page_id']}.html"
+    )
 
     # If the file already exists, return it
     if html_output_path.exists():
@@ -183,7 +185,9 @@ def _get_page_count() -> int:
     page_numbers = pagination.find_all("a", class_="page-numbers")
 
     # Get the text from each one
-    text_list = [page_number.text for page_number in page_numbers if page_number.text.isdigit()]
+    text_list = [
+        page_number.text for page_number in page_numbers if page_number.text.isdigit()
+    ]
 
     # Get the max number
     page_count = max([int(text) for text in text_list])

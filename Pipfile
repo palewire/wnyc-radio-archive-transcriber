@@ -9,6 +9,7 @@ click = "*"
 openai-whisper = "*"
 rich = "*"
 requests = "*"
+retry = "*"
 
 [dev-packages]
 

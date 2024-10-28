@@ -1,0 +1,127 @@
+name: Transcribe
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+
+permissions:
+  contents: write
+
+jobs:
+  seed:
+    name: Seed
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - id: checkout
+        timeout-minutes: 5
+        name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "actions@github.com"
+          git config pull.rebase false
+
+      - id: git-pull
+        name: Pull
+        run: git pull origin $GITHUB_REF
+
+      - id: setup-python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: |
+            **/pyproject.toml
+
+      - id: install-python-dependencies
+        timeout-minutes: 30
+        name: Install Python dependencies
+        run: pip install -e '.'
+
+      - id: seed
+        name: List up to 256 untranscribed files
+        run: python -m pipeline.files -l 256 > files.json
+
+      - id: set-output
+        name: Output file list
+        run: echo "file-list=$(cat files.json | jq -c)" >> $GITHUB_OUTPUT
+        shell: bash
+    outputs:
+      file-list: ${{ steps.set-output.outputs.file-list }}
+
+  task:
+    name: Run pipeline
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    needs: seed
+    strategy:
+      fail-fast: false
+      matrix:
+        file: ${{ fromJson(needs.seed.outputs.file-list) }}
+    steps:
+      - id: checkout
+        timeout-minutes: 5
+        name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "actions@github.com"
+          git config pull.rebase false
+
+      - id: git-pull
+        name: Pull
+        run: git pull origin $GITHUB_REF
+
+      - id: setup-ffmpeg
+        timeout-minutes: 5
+        name: Install ffmpeg
+        run: sudo apt-get install ffmpeg
+
+      - id: setup-python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: |
+            **/pyproject.toml
+
+      - id: install-python-dependencies
+        timeout-minutes: 30
+        name: Install Python dependencies
+        run: pip install -e '.'
+
+      - id: Transcribe
+        name: Transcribe
+        run: python -m pipeline.transcribe -m turbo -f ${{ matrix.file }}
+
+      - id: git-status
+        name: Status
+        run: git status
+
+      - id: git-pull-2
+        name: Pull
+        run: git pull origin $GITHUB_REF
+
+      - id: git-add
+        name: Add
+        run: |
+          git add ./data/output
+
+      - id: git-commit
+        name: Commit
+        run: git commit -m "Transcribed ${{ matrix.file }}" --author="palewire <palewire@users.noreply.github.com>" || true
+
+      - id: git-pull-3
+        name: Pull again
+        run: git pull origin $GITHUB_REF
+
+      - id: git-push
+        name: Push
+        run: git push || true

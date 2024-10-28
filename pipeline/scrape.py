@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-import time
 import json
 from pathlib import Path
 
 import click
 import requests
 from rich import print
+from retry import retry
 from bs4 import BeautifulSoup
 
 from pipeline import settings
@@ -32,7 +32,7 @@ def html():
     # Open each of the downloaded HTML files
     dict_list = []
     for page in page_list:
-        dict_list += _scrape_page(page)
+        dict_list += _scrape_page_list(page)
 
     # Write the list of dicts to a JSON file
     json_output_path = settings.INPUT_DIR / "json" / "pages.json"
@@ -46,7 +46,7 @@ def html():
         _get_page_detail(page)
 
 
-def _scrape_page(page: int) -> list[dict]:
+def _scrape_page_list(page: int) -> list[dict]:
     """Scrape a list of entries from the provided page."""
     # Let em know we're scraping the page
     print(f"Scraping page {page}...")
@@ -99,6 +99,7 @@ def _scrape_page(page: int) -> list[dict]:
     return dict_list
 
 
+@retry(tries=3, delay=3, backoff=2)
 def _get_page_detail(page: dict) -> Path:
     """Scrape the provided page."""
     # Set the HTML output path
@@ -122,9 +123,6 @@ def _get_page_detail(page: dict) -> Path:
     # Write the prettified HTML to a file
     with open(html_output_path, "w") as file:
         file.write(BeautifulSoup(r.text, "html.parser").prettify())
-
-    # Sleep for .5 seconds
-    time.sleep(0.5)
 
     # Return the HTML output path
     return html_output_path

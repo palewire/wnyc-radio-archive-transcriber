@@ -34,7 +34,7 @@ jobs:
 
       - id: make
         name: Run scrape command
-        run: pipenv run python -m pipeline.scrape html
+        run: uv run python -m pipeline.scrape html
         shell: bash
 
       - id: commit

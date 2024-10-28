@@ -10,6 +10,7 @@ jobs:
   scrape:
     name: Scrape
     runs-on: ubuntu-latest
+    timeout-minutes: 360
     steps:
       - id: checkout
         name: Checkout

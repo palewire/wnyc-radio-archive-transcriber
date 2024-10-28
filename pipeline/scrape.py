@@ -34,6 +34,11 @@ def html():
     for page in page_list:
         dict_list += _scrape_page_list(page)
 
+    # Download all the detail pages
+    for page in dict_list:
+        _get_page_detail(page)
+        _scrape_page_detail(page)
+
     # Write the list of dicts to a JSON file
     json_output_path = settings.INPUT_DIR / "json" / "pages.json"
     json_output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -41,9 +46,32 @@ def html():
     with open(json_output_path, "w") as file:
         json.dump(dict_list, file, indent=2)
 
-    # Download all the detail pages
-    for page in dict_list:
-        _get_page_detail(page)
+
+def _scrape_page_detail(page: dict) -> dict:
+    """Scrape the provided detail page."""
+    # Let em know we're scraping the page
+    print(f"Scraping detail page {page['page_id']}...")
+
+    # Read in the HTML for this page
+    html_input_path = (
+        settings.INPUT_DIR / "html" / "details" / f"{page['page_id']}.html"
+    )
+
+    # Get the HTML
+    with open(html_input_path) as file:
+        html = file.read()
+
+    # Parse the HTML
+    soup = BeautifulSoup(html, "html.parser")
+
+    # Get the <a> tag with .fa-download class
+    download_link = soup.find("a", class_="fa-download")["href"]
+
+    # Add it to the dict
+    page["download_link"] = download_link
+
+    # Return the dict
+    return page
 
 
 def _scrape_page_list(page: int) -> list[dict]:

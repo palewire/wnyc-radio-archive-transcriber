@@ -1,11 +1,10 @@
 [build-system]
-requires = ["setuptools >= 61.0", "setuptools_scm>=8"]
-build-backend = "setuptools.build_meta"
+requires = ["setuptools >= 61.0"]
 
 [project]
 name = "wnyc-radio-archive-transcriber"
-dynamic = ["version"]
-requires-python = ">=3.9"
+version = "0.0.0"
+requires-python = ">=3.12"
 dependencies = [
     'bs4',
     'click',
@@ -24,20 +23,12 @@ classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "License :: OSI Approved :: MIT License",
 ]
 
 [project.optional-dependencies]
-test = [
-    "pytest-runner",
-    "pytest-cov",
-    "pytest-env",
-    "pytest-vcr",
-    "pytest-xdist",
-]
 mypy = [
     "mypy",
     "types-requests",
@@ -45,12 +36,9 @@ mypy = [
 ]
 
 [project.urls]
-Documentation = "https://palewi.re/docs/your-respository/"
 Maintainer = "https://github.com/palewire/"
-Source = "https://github.com/palewire/your-respository/"
-Issues = "https://github.com/palewire/your-respository/issues/"
+Source = "https://github.com/palewire/wnyc-radio-archive-transcriber"
+Issues = "https://github.com/palewire/wnyc-radio-archive-transcriber/issues/"
 
 [tool.setuptools]
 packages = ["pipeline"]
-
-[tool.setuptools_scm]

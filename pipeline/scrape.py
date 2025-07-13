@@ -12,14 +12,8 @@ from bs4 import BeautifulSoup
 from pipeline import settings
 
 
-@click.group()
-def cli():
-    """Scrape the internet for mp3 files."""
-    pass
-
-
-@cli.command()
-def html():
+@click.command()
+def scrape():
     """Download HTML files from the NYC archive site."""
     # Get the number of pages
     page_count = _get_page_count()
@@ -228,4 +222,4 @@ def _get_page_count() -> int:
 
 
 if __name__ == "__main__":
-    cli()
+    scrape()

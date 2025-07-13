@@ -13,7 +13,7 @@ from pipeline import utils
     type=int,
     help="The maximum number of files to list",
 )
-def files(limit: int | None) -> None:
+def untranscribed(limit: int | None) -> None:
     """Get a random mp3 file that hasn't been transcribed yet."""
     # Get a list of all the untranscribed mp3 files
     mp3_list = utils.get_all_untranscribed_mp3()
@@ -30,4 +30,4 @@ def files(limit: int | None) -> None:
 
 
 if __name__ == "__main__":
-    files()
+    untranscribed()

@@ -26,7 +26,7 @@ jobs:
         run: uv sync
 
       - name: Run scrape command
-        run: uv run python -m pipeline.scrape scrape
+        run: uv run python -m pipeline.scrape
 
       - id: commit
         name: Commit results

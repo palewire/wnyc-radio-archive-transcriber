@@ -7,7 +7,7 @@ import click
 import requests
 from rich import print
 from retry import retry
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 
 from pipeline import settings
 
@@ -59,10 +59,12 @@ def _scrape_page_detail(page: dict) -> dict:
     soup = BeautifulSoup(html, "html.parser")
 
     # Get the <a> tag with .fa-download class
-    download_link = soup.find("a", class_="fa-download")["href"]
+    download_link = soup.find("a", class_="fa-download")
+    assert download_link, "Download link not found"
+    assert isinstance(download_link, Tag), "Download link is not a Tag"
 
     # Add it to the dict
-    page["download_link"] = download_link
+    page["download_link"] = download_link["href"]
 
     # Return the dict
     return page
@@ -85,25 +87,37 @@ def _scrape_page_list(page: int) -> list[dict]:
 
     # Get the #search-results element
     search_results = soup.find("div", id="search-results")
+    assert search_results, "Search results not found"
+    assert isinstance(search_results, Tag), "Search results is not a Tag"
 
     # Get a list of the .result-item elements
     result_items = search_results.find_all("div", class_="result-item")
+    assert result_items, "No result items found"
 
     # Loop through them
     dict_list = []
     for item in result_items:
+        assert isinstance(item, Tag), "Result item is not a Tag"
+
         # Get the title from the <h5> tag
-        title = item.find("h5").text
+        h5 = item.find("h5")
+        assert isinstance(h5, Tag), "Title h5 tag not found"
+        title = h5.text
 
         # Get the href from the a tag inside the <h5> tag
-        href = item.find("h5").find("a")["href"]
+        a = h5.find("a")
+        assert isinstance(a, Tag), "Title link not found"
+        href = str(a["href"])
 
         # Parse the id from the href
         page_id = href.split("/")[-2]
         assert page_id.strip()
 
         # Get the description from the .archive_description p element
-        description = item.find("div", class_="archive_description").p.text
+        div = item.find("div", class_="archive_description")
+        assert isinstance(div, Tag), "Description div not found"
+        assert div.p, "Description p tag not found"
+        description = div.p.text
 
         # Toss it in a dict
         entry = {
@@ -146,7 +160,8 @@ def _get_page_detail(page: dict) -> Path:
 
     # Write the prettified HTML to a file
     with open(html_output_path, "w") as file:
-        file.write(BeautifulSoup(r.text, "html.parser").prettify())
+        html = BeautifulSoup(r.text, "html.parser").prettify()
+        file.write(str(html))
 
     # Return the HTML output path
     return html_output_path
@@ -180,7 +195,8 @@ def _get_page_list(page: int) -> Path:
 
     # Write the prettified HTML to a file
     with open(html_output_path, "w") as file:
-        file.write(BeautifulSoup(r.text, "html.parser").prettify())
+        html = BeautifulSoup(r.text, "html.parser").prettify()
+        file.write(str(html))
 
     # Return the HTML output path
     return html_output_path
@@ -202,9 +218,12 @@ def _get_page_count() -> int:
 
     # Get .pagination
     pagination = soup.find("div", class_="pagination")
+    assert pagination, "Pagination not found"
+    assert isinstance(pagination, Tag), "Pagination is not a Tag"
 
     # Get all the <a> tags with a .page-numbers class
     page_numbers = pagination.find_all("a", class_="page-numbers")
+    assert page_numbers, "No page numbers found"
 
     # Get the text from each one
     text_list = [

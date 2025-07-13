@@ -12,6 +12,7 @@ dependencies = [
     'retry',
     'rich',
     'requests',
+    'pre-commit',
 ]
 authors = [
   { name="Ben Welsh", email="b@palewi.re" },

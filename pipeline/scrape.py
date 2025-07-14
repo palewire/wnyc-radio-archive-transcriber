@@ -14,31 +14,60 @@ from pipeline import settings
 
 @click.command()
 def scrape():
-    """Download HTML files from the NYC archive site."""
-    # Get the number of pages
+    """
+    Main scraping function that orchestrates the entire process.
+    
+    This function demonstrates a common web scraping pattern:
+    1. Discover the scope (how many pages exist)
+    2. Download list pages (containing multiple items)
+    3. Extract metadata from list pages
+    4. Download detail pages for each item
+    5. Extract specific data from detail pages
+    6. Save structured data for later use
+    
+    This two-stage approach (list → detail) is common when scraping
+    sites that use pagination and separate detail pages.
+    """
+    print("🚀 Starting WNYC archive scraping process...")
+    
+    # STEP 1: Discover the total number of pages to scrape
+    print("\n📊 Discovering archive scope...")
     page_count = _get_page_count()
     page_list = list(range(1, page_count + 1))
+    print(f"Found {page_count} pages to process")
 
-    # Loop through the pages
+    # STEP 2: Download all list pages (these contain summaries of broadcasts)
+    print(f"\n📥 Downloading {len(page_list)} list pages...")
     for page in page_list:
         _get_page_list(page)
 
-    # Open each of the downloaded HTML files
+    # STEP 3: Extract broadcast metadata from each list page
+    print(f"\n🔍 Extracting broadcast metadata from list pages...")
     dict_list = []
     for page in page_list:
-        dict_list += _scrape_page_list(page)
+        page_data = _scrape_page_list(page)
+        dict_list += page_data
+        print(f"  Page {page}: found {len(page_data)} broadcasts")
 
-    # Download all the detail pages
-    for page in dict_list:
+    print(f"Total broadcasts discovered: {len(dict_list)}")
+
+    # STEP 4: Download detail pages (these contain download links)
+    print(f"\n📥 Downloading detail pages for download links...")
+    for i, page in enumerate(dict_list, 1):
+        if i % 100 == 0:  # Progress indicator
+            print(f"  Processed {i}/{len(dict_list)} detail pages...")
         _get_page_detail(page)
         _scrape_page_detail(page)
 
-    # Write the list of dicts to a JSON file
+    # STEP 5: Save all structured data as JSON for the transcription pipeline
+    print(f"\n💾 Saving structured data...")
     json_output_path = settings.INPUT_DIR / "json" / "pages.json"
     json_output_path.parent.mkdir(parents=True, exist_ok=True)
     print(f"Writing {len(dict_list)} entries to {json_output_path}...")
     with open(json_output_path, "w") as file:
         json.dump(dict_list, file, indent=2)
+    
+    print("✅ Scraping complete! Data ready for transcription pipeline.")
 
 
 def _scrape_page_detail(page: dict) -> dict:

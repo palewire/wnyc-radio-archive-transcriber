@@ -17,7 +17,7 @@ dependencies = [
 authors = [
   { name="Ben Welsh", email="b@palewi.re" },
 ]
-description = "Transcribing audio recordings of WNYC radio broadcasts preserved by the New York City Municipal Archive"
+description = "Scrape and transcribe thousands of audio files for free using Python, OpenAI's Whisper, and GitHub Actions"
 license = {text = "MIT"}
 readme = "README.md"
 classifiers = [

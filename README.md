@@ -52,21 +52,27 @@ cd wnyc-radio-archive-transcriber
 Install dependencies.
 
 ```bash
-# Install uv (modern Python package manager)
 curl -LsSf https://astral.sh/uv/install.sh | sh
-
-# Install project dependencies
 uv sync
 ```
 
 Check for untranscribed files.
 
 ```bash
-# Check how many files are available to transcribe
 uv run python -m pipeline.count
 ```
 
 Scrape new files from the WNYC archive.
+
+```bash
+uv run python -m pipeline.scrape
+```
+
+List untranscribed files.
+
+```bash
+uv run python -m pipeline.untranscribed -l 1
+```
 
 ```bash
 uv run python -m pipeline.scrape
